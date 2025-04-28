@@ -33,6 +33,19 @@ impl ProyectoCrudContract {
         let proyectos: Map<Symbol, Proyecto> = env.storage().persistent().get(&key).unwrap_or_default();
         proyectos.get(id)
     }
-
+    
     // Actualizar un proyecto existente, retorna true si se actualizó, false si no existía
-    pub fn actualizar(env: Env, id: Symbol, nombre: Symbol, descripcion: Symbol)
+    pub fn actualizar(env: Env, id: Symbol, nombre: Symbol, descripcion: Symbol) -> bool {
+        let key = Symbol::short("proyectos");
+        let mut proyectos: Map<Symbol, Proyecto> = env.storage().persistent().get(&key).unwrap_or_default();
+
+        if !proyectos.contains_key(id.clone()) {
+            return false; // No existe un proyecto con este ID
+        }
+
+        let proyecto_actualizado = Proyecto { id: id.clone(), nombre, descripcion };
+        proyectos.set(id.clone(), proyecto_actualizado);
+        env.storage().persistent().set(&key, &proyectos);
+        true
+    }
+}
